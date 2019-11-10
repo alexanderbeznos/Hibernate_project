@@ -1,14 +1,22 @@
 package servlets.storage;
 
 import org.apache.commons.dbcp2.BasicDataSource;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import servlets.models.Player;
 import servlets.models.User;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Properties;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class DBUsers {
+    private SessionFactory factory;
     private static final BasicDataSource SOURSE = new BasicDataSource();
     private static final DBUsers INSTANCE = new DBUsers();
 
@@ -17,80 +25,81 @@ public class DBUsers {
      * Создается таблица в базе данных для храниения информации об игроках.
      */
     private DBUsers() {
-        try (InputStream in = DBStore.class.getClassLoader().getResourceAsStream("app.properties")) {
-            Properties config = new Properties();
-            config.load(in);
-            SOURSE.setDriverClassName(config.getProperty("driver-class-name"));
-            SOURSE.setUrl(config.getProperty("url"));
-            SOURSE.setUsername(config.getProperty("username"));
-            SOURSE.setPassword(config.getProperty("password"));
-            SOURSE.setMinIdle(5);
-            SOURSE.setMaxIdle(10);
-            SOURSE.setMaxOpenPreparedStatements(100);
-            this.createTable();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        factory = new Configuration().configure().buildSessionFactory();
     }
 
     public static DBUsers getInstance() {
         return INSTANCE;
     }
 
-    /**
-     * Метод создаёт таблицу для хранения информации об игроках, если она еще не была создана.
-     */
-    public void createTable() {
+    private void doVoid(final Consumer<Session> command) throws UserValidationException {
+        final Session session = factory.openSession();
+        Transaction tr = null;
         try {
-            Connection connection = SOURSE.getConnection();
-            Statement statement = connection.createStatement();
-            statement.execute("create table if not exists users("
-                    + "id serial primary key,"
-                    + "login varchar(100) unique,"
-                    + "password varchar(100))");
-        } catch (SQLException e) {
-            e.printStackTrace();
+            tr = session.beginTransaction();
+            command.accept(session);
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+                throw new UserValidationException("Problem has occurred");
+            }
+        } finally {
+            session.close();
         }
+    }
+
+    private <T> T doFunction(final Function<Session, T> command) throws UserValidationException {
+        final Session session = factory.openSession();
+        Transaction tr = null;
+        try {
+            tr = session.beginTransaction();
+            T rsl = command.apply(session);
+            tr.commit();
+            return rsl;
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+                e.printStackTrace();
+                throw new UserValidationException("Problem has occurred");
+            }
+        } finally {
+            session.close();
+        }
+        return null;
     }
 
     /**
      * Метод создаёт и выполняет запрос на добавление нового пользователя в БД.
      * Пользователю присваивается уникальный номер.
      */
-    public void add(User user) throws UserValidationException {
-        try (Connection connection = SOURSE.getConnection();
-             PreparedStatement ps = connection.prepareStatement(
-                     "insert into users"
-                             + "(login, password)"
-                             + "values (?, ?);"
-             )) {
-            ps.setString(1, user.getLogin());
-            ps.setString(2, user.getPassword());
-            ps.executeUpdate();
-        } catch (Exception e) {
-            throw new UserValidationException("Cannot add user.");
-        }
+    public void addOrUpdate(User user) throws UserValidationException {
+        doVoid(tmp -> tmp.saveOrUpdate(user));
     }
 
     /**
      * Метод создает и выполняет запрос по поиску игрока по id в БД.
      */
+//    public User findByLogin(String login) throws UserValidationException {
+//        User result = null;
+//        try (Connection connection = SOURSE.getConnection();
+//             PreparedStatement ps = connection.prepareStatement(
+//                     "select * from users where login = ?;"
+//             )) {
+//            ps.setString(1, login);
+//            ResultSet rs = ps.executeQuery();
+//            while (rs.next()) {
+//                int id = Integer.parseInt(rs.getString("id"));
+//                String password = rs.getString("password");
+//                result = new User(id, login, password);
+//            }
+//        } catch (SQLException e) {
+//            throw new UserValidationException("Cannot find user.");
+//        }
+//        return result;
+//    }
     public User findByLogin(String login) throws UserValidationException {
-        User result = null;
-        try (Connection connection = SOURSE.getConnection();
-             PreparedStatement ps = connection.prepareStatement(
-                     "select * from users where login = ?;"
-             )) {
-            ps.setString(1, login);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int id = Integer.parseInt(rs.getString("id"));
-                String password = rs.getString("password");
-                result = new User(id, login, password);
-            }
-        } catch (SQLException e) {
-            throw new UserValidationException("Cannot find user.");
-        }
-        return result;
+        String query = String.format("from User u where u.login = '%s'", login);
+        return (User) doFunction(tmp -> tmp.createQuery(query).getSingleResult());
     }
 }

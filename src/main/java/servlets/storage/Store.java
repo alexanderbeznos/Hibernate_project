@@ -1,5 +1,6 @@
 package servlets.storage;
 
+import servlets.models.FootballPosition;
 import servlets.models.Player;
 
 import java.util.Collection;
@@ -10,10 +11,10 @@ import java.util.Collection;
  * @author Alexander Beznos (ast1bn@mail.ru)
  */
 public interface Store {
-    void add(Player player) throws PlayerValidationException;
-    boolean update(Player player, int id) throws PlayerValidationException;
-    boolean delete(int id) throws PlayerValidationException;
+    void addOrUpdate(Player player) throws PlayerValidationException;
+    void delete(int id) throws PlayerValidationException;
     Collection<Player> findAll() throws PlayerValidationException;
     Player findById(int id) throws PlayerValidationException;
+    Collection<FootballPosition> findAllPositions() throws PlayerValidationException;
 }
 

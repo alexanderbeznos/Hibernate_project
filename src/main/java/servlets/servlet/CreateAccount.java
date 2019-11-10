@@ -41,7 +41,7 @@ public class CreateAccount extends HttpServlet {
         User u1 = new User(login, password);
         String result;
         try {
-            ValidateServiceUsers.getInstance().add(u1);
+            ValidateServiceUsers.getInstance().addOrUpdate(u1);
             result = "The user was create successfully";
         } catch (UserValidationException e) {
             result = e.getMessage();
