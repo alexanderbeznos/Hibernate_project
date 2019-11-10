@@ -32,8 +32,6 @@
         }
     </script>
 
-
-
     <script>
     function getClubs() {
         deleteOptions();
@@ -69,6 +67,33 @@
 
     }
     </script>
+
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: './position',
+                dataType: 'json',
+                success: function(data, status, settings) {
+                    console.log(data)
+                    getPosition(data)
+                }});
+        })
+    </script>
+
+    <script>
+        function getPosition (data) {
+            var arr = data['collection'];
+            for (i = 0; i < arr.length; i++){
+                var poz = arr[i];
+                var opt = document.createElement('option');
+                opt.innerHTML = poz['name'];
+                opt.value = poz['id'];
+                document.getElementById('area').appendChild(opt);
+            }
+        }
+    </script>
+
 </head>
 <body>
 <div class="container">
@@ -96,6 +121,12 @@
                 <div class="form-group">
                     <label for="clubs">Club</label>
                     <select class="form-control" id="clubs" name="club">
+                        <option value="" disabled selected> Select your option</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="area">Position</label>
+                    <select class="form-control" id="area" name="area">
                         <option value="" disabled selected> Select your option</option>
                     </select>
                 </div>

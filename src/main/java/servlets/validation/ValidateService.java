@@ -28,24 +28,12 @@ public class ValidateService implements Validate {
     }
 
     /**
-     * Метод для добавления игрока в БД.
+     * Метод для добавления и редактирования игрока в БД.
      * @param player игрок для добавления
      */
     @Override
-    public void add(Player player) throws PlayerValidationException {
-        this.objectStore.add(player);
-    }
-
-    /**
-     * Метод для редактирования игрока в БД.
-     * @param player игрок, на которого будет заменен игрок в БД.
-     * @param id номер игрока для редактирования.
-     */
-    @Override
-    public boolean update(Player player, int id) throws PlayerValidationException {
-        boolean result;
-        result = this.objectStore.update(player, id);
-        return result;
+    public void addOrUpdate(Player player) throws PlayerValidationException {
+        this.objectStore.addOrUpdate(player);
     }
 
     /**
@@ -53,10 +41,9 @@ public class ValidateService implements Validate {
      * @param id номер игрока для удаления.
      */
     @Override
-    public boolean delete(int id) throws PlayerValidationException {
-        boolean result;
-        result = this.objectStore.delete(id);
-        return result;
+    public void delete(int id) throws PlayerValidationException {
+        this.objectStore.delete(id);
+
     }
 
     /**

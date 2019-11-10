@@ -96,6 +96,14 @@
         <url-pattern>/clubs</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>position</servlet-name>
+        <servlet-class>servlets.servlet.PositionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>position</servlet-name>
+        <url-pattern>/position</url-pattern>
+    </servlet-mapping>
 
 
 

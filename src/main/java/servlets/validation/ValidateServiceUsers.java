@@ -27,8 +27,8 @@ public class ValidateServiceUsers {
      * Метод для добавления пользователя в БД.
      * @param user пользователя для добавления
      */
-    public void add(User user) throws UserValidationException {
-        this.objectStore.add(user);
+    public void addOrUpdate(User user) throws UserValidationException {
+        this.objectStore.addOrUpdate(user);
     }
 
     /**

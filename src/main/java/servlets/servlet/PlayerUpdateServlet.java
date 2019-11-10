@@ -1,5 +1,6 @@
 package servlets.servlet;
 
+import servlets.models.FootballPosition;
 import servlets.models.Player;
 import servlets.storage.PlayerValidationException;
 import servlets.validation.ValidateService;
@@ -46,10 +47,12 @@ public class PlayerUpdateServlet extends HttpServlet {
         int marketValue = Integer.parseInt(req.getParameter("marketValue"));
         String country = req.getParameter("country");
         String club = req.getParameter("club");
-        Player player = new Player(name, lastName, marketValue, country, club);
+        int positionId = Integer.parseInt(req.getParameter("area"));
+        FootballPosition footballPosition = new FootballPosition(positionId);
+        Player player = new Player(id, name, lastName, marketValue, country, club, footballPosition);
         String result;
         try {
-            ValidateService.getInstance().update(player, id);
+            ValidateService.getInstance().addOrUpdate(player);
             result = "The player was update successfully";
         } catch (PlayerValidationException e) {
             result = e.getMessage();

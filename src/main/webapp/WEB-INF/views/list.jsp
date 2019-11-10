@@ -27,6 +27,7 @@
                     <th>Market Value</th>
                     <th>Country</th>
                     <th>Club</th>
+                    <th>Position</th>
                     <th></th>
                     <th></th>
                 </tr>
@@ -38,6 +39,7 @@
                             <td><c:out value="${player.marketValue}"/></td>
                             <td><c:out value="${player.country}"/></td>
                             <td><c:out value="${player.club}"/></td>
+                            <td><c:out value="${player.position.name}"/></td>
                             <td>
                                 <form action="${pageContext.request.contextPath}/updatePlayer" method="get">
                                     <input type="submit" value="Update">
@@ -45,8 +47,6 @@
                                     <input name="name" type="hidden" value="<c:out value="${player.name}"/>"/>
                                     <input name="lastName" type="hidden" value="<c:out value="${player.lastName}"/>"/>
                                     <input name="marketValue" type="hidden" value="<c:out value="${player.marketValue}"/>"/>
-                                    <input name="country" type="hidden" value="<c:out value="${player.country}"/>"/>
-                                    <input name="club" type="hidden" value="<c:out value="${player.club}"/>"/>
                                 </form>
                             </td>
                             <td>
