@@ -1,23 +1,15 @@
 package servlets.storage;
 
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import servlets.models.Player;
 import servlets.models.User;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.*;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DBUsers {
     private SessionFactory factory;
-    private static final BasicDataSource SOURSE = new BasicDataSource();
     private static final DBUsers INSTANCE = new DBUsers();
 
     /**
@@ -80,24 +72,6 @@ public class DBUsers {
     /**
      * Метод создает и выполняет запрос по поиску игрока по id в БД.
      */
-//    public User findByLogin(String login) throws UserValidationException {
-//        User result = null;
-//        try (Connection connection = SOURSE.getConnection();
-//             PreparedStatement ps = connection.prepareStatement(
-//                     "select * from users where login = ?;"
-//             )) {
-//            ps.setString(1, login);
-//            ResultSet rs = ps.executeQuery();
-//            while (rs.next()) {
-//                int id = Integer.parseInt(rs.getString("id"));
-//                String password = rs.getString("password");
-//                result = new User(id, login, password);
-//            }
-//        } catch (SQLException e) {
-//            throw new UserValidationException("Cannot find user.");
-//        }
-//        return result;
-//    }
     public User findByLogin(String login) throws UserValidationException {
         String query = String.format("from User u where u.login = '%s'", login);
         return (User) doFunction(tmp -> tmp.createQuery(query).getSingleResult());
