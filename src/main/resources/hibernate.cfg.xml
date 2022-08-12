@@ -13,3 +13,4 @@
         <mapping class="servlets.models.FootballPosition"/>
     </session-factory>
 </hibernate-configuration>
+
